@@ -1,0 +1,9 @@
+  {
+    "discord": {
+      "token": "YOUR DICORD TOKEN",
+      "channelId": "CHANNEL ID DISCORD"
+    },
+    "whatsapp": {
+      "phoneNumber": "whatsapp:Your Phone number Ex: 621234567"
+  }
+}
