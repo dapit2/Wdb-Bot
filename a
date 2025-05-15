@@ -1,0 +1,12 @@
+client.on("messageCreate", async (message) => {
+    if (message.author.bot) return; // Ignore bot messages
+    if (message.channelId == dcClID && !message.author.bot) {
+        const wachat = message.content;
+
+        try {
+            await sock.sendMessage(wagid, { text: wachat });
+        } catch (error) {
+            console.error("Error sending message to WhatsApp:", error);
+        }
+    }
+})
