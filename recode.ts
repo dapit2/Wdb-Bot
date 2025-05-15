@@ -1,8 +1,7 @@
-import { Client,GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
+import * as fs from "fs";
 
-var dctoken = "";
-var wagid = "";
-var dcClID = "";
+const dctoken = ""
 
 const client = new Client({
     intents: [
@@ -11,6 +10,12 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
     ]
 });
+
+client.on("messageCreate", async (message) => {
+    if (message.author.bot) return;
+    console.log(`Received message: ${message.content}`);
+    
+
 
 client.once("ready", () => {
     console.log("Bot is ready!");
