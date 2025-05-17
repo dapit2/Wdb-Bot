@@ -5,6 +5,10 @@ import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
+const dctoken = "";
+const userwa = "";
+const userdc = "";
+
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
@@ -35,8 +39,6 @@ async function handleConnectionUpdate(update: any) {
     }
 }
 
-const dctoken = ""
-
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -52,10 +54,15 @@ sock.ev.on("messages.upsert", async (msg) => {
     if (message.message.extendedTextMessage) {
         console.log("Received message:", message.message.extendedTextMessage.text);
     }
+    if(message.key.remoteJid === data.wagi) {
+        sock.sendMessage(data.wagi, { text: "message received!"});
+    }
     if(message.message.extendedTextMessage?.text == "!set") {
         if (message.key.remoteJid) {
-            sock.sendMessage(message.key.remoteJid, { text: "Succses set this GroupID" });
-            
+            const id = message.key.remoteJid;
+            data.wagi = id;
+            fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
+            sock.sendMessage(message.key.remoteJid, { text: "GroupID set to: " + id });
         }
     }
 });
