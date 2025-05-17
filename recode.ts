@@ -2,6 +2,8 @@ import { channel } from "diagnostics_channel";
 import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
+const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
+
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
@@ -26,10 +28,12 @@ const client = new Client({
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     console.log(`Received message: ${message.content}`);
+    if (message.content === data.dcClID) {
+        message.channel.send("Message received!");
+    }
     if (message.content === "!set") {
         const channelId = message.channel.id;
         try {
-            const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
             data.dcClID = channelId;
             fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
             message.channel.send(`Channel ID set to: ${channelId}`);
