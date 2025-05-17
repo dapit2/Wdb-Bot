@@ -48,7 +48,7 @@ const client = new Client({
 
 sock.ev.on("messages.upsert", async (msg) => {
     const message = msg.messages[0];
-    if(!message.message) return;
+    if(!message?.message) return;
     if (message.key.fromMe) return;
     if (message.message.extendedTextMessage) {
         console.log("Received message:", message.message.extendedTextMessage.text);
