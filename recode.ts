@@ -15,8 +15,17 @@ const client = new Client({
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     console.log(`Received message: ${message.content}`);
-    if (message.content === "!store") {
-        message.channel.send("Storing message...");
+    if (message.content === "!set") {
+        const channelId = message.channel.id;
+        try {
+            const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
+            data.dcClID = channelId;
+            fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
+            message.channel.send(`Channel ID set to: ${channelId}`);
+        } catch (error) {
+            console.error("Error updating id.json:", error);
+            message.channel.send("An error occurred while setting the channel ID.");
+        }
     }
 });
 
