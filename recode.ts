@@ -1,3 +1,4 @@
+import { channel } from "diagnostics_channel";
 import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 
@@ -14,8 +15,10 @@ const client = new Client({
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     console.log(`Received message: ${message.content}`);
-    
-
+    if (message.content === "!store") {
+        message.channel.send("Storing message...");
+    }
+});
 
 client.once("ready", () => {
     console.log("Bot is ready!");
