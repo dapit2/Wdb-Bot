@@ -4,9 +4,9 @@ import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
-const dctoken = "";
-const userwa = "";
-const userdc = "";
+const dctoken = ""; //your discord token
+const uidwa = ""; //your whatsapp number to use command bot
+const uiddc = ""; //your discord user id to use command bot
 
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
