@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.16",
+    "@whiskeysockets/baileys": "^6.7.17",
     "discord.js": "^14.19.3"
   }
 }
