@@ -2,18 +2,38 @@ import { channel } from "diagnostics_channel";
 import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
+import qrcode from "qrcode-terminal";
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
-    printQRInTerminal: true,
     syncFullHistory: false,
     auth: state
  });
 sock.ev.on("creds.update", saveCreds);
 
-
+sock.ev.on("connection.update", handleConnectionUpdate);
+async function handleConnectionUpdate(update: any) {
+    const { qr, connection, lastDisconnect } = update;
+    if (qr) {
+        qrcode.generate(qr, { small: true });
+        console.log("Scan the QR code above to log in to WhatsApp.");
+    }
+    if (connection === "close") {
+        const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
+        console.log("Connection closed. Reconnecting...", shouldReconnect);
+        if (shouldReconnect) {
+            const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
+            const newSock = makeWASocket({ syncFullHistory: false, auth: state });
+            newSock.ev.on("creds.update", saveCreds);
+            // Use the named handler instead of arguments.callee
+            newSock.ev.on("connection.update", handleConnectionUpdate);
+        } else {
+            console.log("Session ended. Delete auth_info_baileys and restart to generate a new QR.");
+        }
+    }
+}
 
 const dctoken = ""
 
@@ -25,10 +45,25 @@ const client = new Client({
     ]
 });
 
+sock.ev.on("messages.upsert", async (msg) => {
+    const message = msg.messages[0];
+    if(!message.message) return;
+    if (message.key.fromMe) return;
+    if (message.message.extendedTextMessage) {
+        console.log("Received message:", message.message.extendedTextMessage.text);
+    }
+    if(message.message.extendedTextMessage?.text == "!set") {
+        if (message.key.remoteJid) {
+            sock.sendMessage(message.key.remoteJid, { text: "Succses set this GroupID" });
+            
+        }
+    }
+});
+
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     console.log(`Received message: ${message.content}`);
-    if (message.content === data.dcClID) {
+    if (message.channel.id === data.dcClID) {
         message.channel.send("Message received!");
     }
     if (message.content === "!set") {
