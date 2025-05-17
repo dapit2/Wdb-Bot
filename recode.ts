@@ -6,6 +6,7 @@ import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
     printQRInTerminal: true,
+    syncFullHistory: false,
     auth: state
  });
 sock.ev.on("creds.update", saveCreds);
