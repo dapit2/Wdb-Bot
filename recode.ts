@@ -1,6 +1,16 @@
 import { channel } from "diagnostics_channel";
 import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
+import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
+
+const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
+const sock = makeWASocket({ 
+    printQRInTerminal: true,
+    auth: state
+ });
+sock.ev.on("creds.update", saveCreds);
+
+
 
 const dctoken = ""
 
