@@ -1,4 +1,3 @@
-import { channel } from "diagnostics_channel";
 import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
