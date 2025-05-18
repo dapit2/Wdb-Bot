@@ -8,7 +8,7 @@ const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 dotenv.config();
 
-const uidwa = ""; //your whatsapp number to use command bot
+const uidwa = "6289527292505"; //your whatsapp number to use command bot
 const uiddc = ""; //your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
@@ -53,24 +53,28 @@ sock.ev.on("messages.upsert", async (msg) => {
     if(!message?.message) return;
     if (message.key.fromMe) return;
     if (message.message.extendedTextMessage) {
-        console.log("Received message:", message.message.extendedTextMessage.text);
+        console.log("Received message Form whatsapp:", message.message.extendedTextMessage.text);
     }
     if(message.key.remoteJid === data.wagi) {
         sock.sendMessage(data.wagi, { text: "message received!"});
     }
     if(message.message.extendedTextMessage?.text == "!set") {
         if (message.key.remoteJid) {
+        if (message.key.remoteJid === uidwa + "@c.us") {
+        await sock.sendMessage(message.key.remoteJid, { text: "You do not have permission to use this command." });
+    }
+    else {
             const id = message.key.remoteJid;
             data.wagi = id;
             fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
             sock.sendMessage(message.key.remoteJid, { text: "GroupID set to: " + id });
         }
     }
-});
+}});
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-    console.log(`Received message: ${message.content}`);
+    console.log(`Received message Form Discord: ${message.content}`);
     if (message.channel.id === data.dcClID) {
         message.channel.send("Message received!");
     }
