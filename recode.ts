@@ -2,9 +2,9 @@ import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
+import 'dotenv/config'
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
-const dctoken = ""; //your discord token
 const uidwa = ""; //your whatsapp number to use command bot
 const uiddc = ""; //your discord user id to use command bot
 
@@ -93,4 +93,4 @@ client.on("error", (error) => {
     console.error("An error occurred:", error);
 });
 
-client.login(dctoken);
+client.login(process.env.dctoken)
