@@ -10,7 +10,7 @@ dotenv.config();
 
 const uidwa = ""; //your whatsapp number to use command bot
 const uiddc = ""; //your discord user id to use command bot
-const allowedRoleIds = ["roleId1", "roleId2"]; // Add role IDs if needed
+const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
