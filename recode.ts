@@ -2,12 +2,15 @@ import { Client, GatewayIntentBits } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
-import 'dotenv/config'
+import dotenv from "dotenv";
+import "dotenv/config";
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
+
+dotenv.config();
 
 const uidwa = ""; //your whatsapp number to use command bot
 const uiddc = ""; //your discord user id to use command bot
-
+const allowedRoleIds = ["roleId1", "roleId2"]; // Add role IDs if needed
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 const sock = makeWASocket({ 
@@ -30,7 +33,6 @@ async function handleConnectionUpdate(update: any) {
             const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
             const newSock = makeWASocket({ syncFullHistory: false, auth: state });
             newSock.ev.on("creds.update", saveCreds);
-            // Use the named handler instead of arguments.callee
             newSock.ev.on("connection.update", handleConnectionUpdate);
         } else {
             console.log("Session ended. Delete auth_info_baileys and restart to generate a new QR.");
@@ -74,6 +76,21 @@ client.on("messageCreate", async (message) => {
     }
     if (message.content === "!set") {
         const channelId = message.channel.id;
+        if (!message.guild) {
+            message.channel.send("This command can only be used in a server.");
+            return;
+        }
+        const member = message.guild.members.cache.get(message.author.id);
+        if (!member) {
+            message.channel.send("Could not retrieve member information.");
+            return;
+        }
+        const hasAllowedRole = member.roles.cache.some(role => allowedRoleIds.includes(role.id));
+        const isAllowedUser = uiddc === message.author.id; // Assuming `uiddc` is the allowed user ID
+        if (!isAllowedUser && !hasAllowedRole) {
+            message.channel.send("You do not have permission to use this command.");
+            return;
+        }
         try {
             data.dcClID = channelId;
             fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
