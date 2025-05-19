@@ -61,8 +61,8 @@ sock.ev.on("messages.upsert", async (msg) => {
     }
     if(message.message.extendedTextMessage?.text == "!set") {
         if (message.key.remoteJid) {
-        if (message.key.remoteJid === uidwa + "@c.us") {
-        await sock.sendMessage(message.key.remoteJid, { text: "You do not have permission to use this command." });
+        if (!uidwa || message.key.remoteJid === uidwa + "@c.us") {
+        sock.sendMessage(message.key.remoteJid, { text: "You do not have permission to use this command." });
     }
     else {
             const id = message.key.remoteJid;
