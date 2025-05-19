@@ -1,14 +1,15 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, MessageManager } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
 import dotenv from "dotenv";
 import "dotenv/config";
+import { channel } from "diagnostics_channel";
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 dotenv.config();
 
-const uidwa = "6289527292505"; //your whatsapp number to use command bot
+const uidwa = ""; //your whatsapp number to use command bot
 const uiddc = ""; //your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
@@ -55,8 +56,8 @@ sock.ev.on("messages.upsert", async (msg) => {
     if (message.message.extendedTextMessage) {
         console.log("Received message Form whatsapp:", message.message.extendedTextMessage.text);
     }
-    if(message.key.remoteJid === data.wagi) {
-        sock.sendMessage(data.wagi, { text: "message received!"});
+        if(message.key.remoteJid === data.wagi) {
+
     }
     if(message.message.extendedTextMessage?.text == "!set") {
         if (message.key.remoteJid) {
@@ -73,10 +74,11 @@ sock.ev.on("messages.upsert", async (msg) => {
 }});
 
 client.on("messageCreate", async (message) => {
-    if (message.author.bot) return;
     console.log(`Received message Form Discord: ${message.content}`);
+    if (message.author.bot) return;
     if (message.channel.id === data.dcClID) {
         message.channel.send("Message received!");
+        sock.sendMessage(data.wagi, { text: message.content });
     }
     if (message.content === "!set") {
         const channelId = message.channel.id;
