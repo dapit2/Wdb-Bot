@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, MessageManager } from "discord.js";
+import { Client, GatewayIntentBits, MessageManager,TextChannel } from "discord.js";
 import * as fs from "fs";
 import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import qrcode from "qrcode-terminal";
@@ -56,8 +56,14 @@ sock.ev.on("messages.upsert", async (msg) => {
     if (message.message.extendedTextMessage) {
         console.log("Received message Form whatsapp:", message.message.extendedTextMessage.text);
     }
-        if(message.key.remoteJid === data.wagi) {
-
+    if(message.key.remoteJid === data.wagi) {
+        if (!message.key.fromMe && message.message?.extendedTextMessage?.text) {
+            const text = message.message.extendedTextMessage.text;
+            const channel = client.channels.cache.get(data.dcClID);
+            if (channel?.isTextBased()) {
+                (channel as TextChannel).send(`WhatsApp Message: ${text}`);
+            }
+        }
     }
     if(message.message.extendedTextMessage?.text == "!set") {
         if (message.key.remoteJid) {
@@ -75,10 +81,23 @@ sock.ev.on("messages.upsert", async (msg) => {
 
 client.on("messageCreate", async (message) => {
     console.log(`Received message Form Discord: ${message.content}`);
-    if (message.author.bot) return;
+    if (message.author.id === client.user?.id) return;
     if (message.channel.id === data.dcClID) {
-        message.channel.send("Message received!");
-        sock.sendMessage(data.wagi, { text: message.content });
+        console.log("Message received discord!");
+        
+        // Handle messages with embeds
+        let messageText = message.content;
+        if (message.embeds.length > 0) {
+            const embed = message.embeds[0];
+            const title = embed?.title || "No Title";
+            const desc = embed?.description || "No Description";
+            const fields = embed?.fields?.map(f => `${f.name}: ${f.value}`).join('\n') || "";
+            const footer = embed?.footer?.text || "";
+            
+            messageText = `${title}\n${desc}\n${fields}\n${footer}`.trim();
+        }
+        
+        sock.sendMessage(data.wagi, { text: messageText });
     }
     if (message.content === "!set") {
         const channelId = message.channel.id;
