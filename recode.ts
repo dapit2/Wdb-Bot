@@ -9,8 +9,8 @@ const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 dotenv.config();
 
-const uidwa = "628952792505"; //your whatsapp number to use command bot
-const uiddc = "924946515905105950"; //your discord user id to use command bot
+const uidwa = ""; //your whatsapp number to use command bot
+const uiddc = ""; //your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
@@ -60,8 +60,11 @@ sock.ev.on("messages.upsert", async (msg) => {
         if (!message.key.fromMe && message.message?.extendedTextMessage?.text) {
             const text = message.message.extendedTextMessage.text;
             const channel = client.channels.cache.get(data.dcClID);
+            const sender = message.key.participant || message.key.remoteJid || "unknown";
+            const name = message.pushName || sender?.split("@")[0] || "Unknown User";
+            
             if (channel?.isTextBased()) {
-                (channel as TextChannel).send(`WhatsApp Message: ${text}`);
+                (channel as TextChannel).send(`${name}: ${text}`);
             }
         }
     }
@@ -97,7 +100,7 @@ client.on("messageCreate", async (message) => {
             
             messageText = `${author}${title}\n${desc}\n${fields}\n${footer}`.trim();
         }
-        const userInfo = `[${message.author.username}] `;
+        const userInfo = `${message.author.username} `;
         sock.sendMessage(data.wagi, { text: userInfo + messageText });
     }
     if (message.content === "!set") {
