@@ -27,7 +27,7 @@ async function handleConnectionUpdate(update: any) {
         qrcode.generate(qr, { small: true });
         console.log("Scan the QR code above to log in to WhatsApp.");
     }
-    if (connection === "close") {
+    if (connection == "close") {
         const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
         console.log("Connection closed. Reconnecting...", shouldReconnect);
         if (shouldReconnect) {
@@ -56,7 +56,7 @@ sock.ev.on("messages.upsert", async (msg) => {
     if (message.message.extendedTextMessage) {
         console.log("Received message Form whatsapp:", message.message.extendedTextMessage.text);
     }
-    if(message.key.remoteJid === data.wagi) {
+    if(message.key.remoteJid == data.wagi) {
         if (!message.key.fromMe && message.message?.extendedTextMessage?.text) {
             const text = message.message.extendedTextMessage.text;
             const channel = client.channels.cache.get(data.dcClID);
@@ -84,8 +84,8 @@ sock.ev.on("messages.upsert", async (msg) => {
 
 client.on("messageCreate", async (message) => {
     console.log(`Received message Form Discord: ${message.content}`);
-    if (message.author.id === client.user?.id) return;
-    if (message.channel.id === data.dcClID) {
+    if (message.author.id == client.user?.id) return;
+    if (message.channel.id == data.dcClID) {
         console.log("Message received discord!");
         
         // Handle messages with embeds
@@ -103,7 +103,7 @@ client.on("messageCreate", async (message) => {
         const userInfo = `${message.author.username} `;
         sock.sendMessage(data.wagi, { text: userInfo + messageText });
     }
-    if (message.content === "!set") {
+    if (message.content == "!set") {
         const channelId = message.channel.id;
         if (!message.guild) {
             message.channel.send("This command can only be used in a server.");
