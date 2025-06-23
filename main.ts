@@ -14,25 +14,9 @@ const uiddc = ""; //your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
 // doing changes in here VVV only the connection doing changes maybe?
+async function whatsappconnection() {
 sock.ev.on("connection.update", handleConnectionUpdate);
-async function handleConnectionUpdate(update: any) {
-    const { qr, connection, lastDisconnect } = update;
-    if (qr) {
-        qrcode.generate(qr, { small: true });
-        console.log("Scan the QR code above to log in to WhatsApp.");
-    }
-    if (connection == "close") {
-        const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
-        console.log("Connection closed. Reconnecting...", shouldReconnect);
-        if (shouldReconnect) {
-            const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
-            const newSock = makeWASocket({ syncFullHistory: false, auth: state });
-            newSock.ev.on("creds.update", saveCreds);
-            newSock.ev.on("connection.update", handleConnectionUpdate);
-        } else {
-            console.log("Session ended. Delete auth_info_baileys and restart to generate a new QR.");
-        }
-    }
+
 }
 
 const client = new Client({
