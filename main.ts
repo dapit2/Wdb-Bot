@@ -63,7 +63,7 @@ async function startbot() {
         }
         if (connection === "close") {
             console.log(chalk.red("Connection closed, attempting to reconnect..."));
-                startbot();
+                startbot()
             } else if ( connection === "open") {
                 console.log(chalk.green("Success connected!"));
             }
