@@ -9,8 +9,8 @@ import 'dotenv/config'
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 const usePairingCode = false; // Set to false if you want to use QR code
-const uidwa = "6289527292505"; // your whatsapp number to use command bot
-const uiddc = "924946515905105950"; // your discord user id to use command bot
+const uidwa = ""; // your whatsapp number to use command bot
+const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
 const client = new Client({
