@@ -6,20 +6,14 @@ import readline from "readline";
 import pino from "pino";
 import fs from "fs";
 import 'dotenv/config'
-const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
+const client = new Client({intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent,]});
+const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 const usePairingCode = false; // Set to false if you want to use QR code
-const uidwa = "5"; // your whatsapp number to use command bot
+const uidwa = ""; // your whatsapp number to use command bot
 const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
-
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-    ]
-});
+const list = {users: []};
 
 async function question(promt: string) {
     process.stdout.write(promt)
@@ -34,6 +28,39 @@ async function question(promt: string) {
 }
 
 let sock: ReturnType<typeof makeWASocket>;
+
+// Add a new user
+function addUser(username) {
+  if (!data.users.includes(username)) {
+    list.users.push(username);
+    console.log(`✅ Added user: ${username}`);
+  } else {
+    console.log(`⚠️ User "${username}" already exists.`);
+  }
+}
+
+// Remove a specific user
+function removeUser(username) {
+  const index = data.users.indexOf(username);
+  if (index !== -1) {
+    list.users.splice(index, 1);
+    console.log(`❌ Removed user: ${username}`);
+  } else {
+    console.log(`⚠️ User "${username}" not found.`);
+  }
+}
+
+// Remove all users
+function clearUsers() {
+  list.users = [];
+  console.log("🧹 All users removed.");
+}
+
+// Read all users
+function listUsers() {
+  console.log("📜 Current users:", data.users);
+  return list.users;
+}
 
 async function startbot() {
     console.log(chalk.blue("Starting bot..."));
@@ -136,8 +163,10 @@ client.on("messageCreate", async (message) => {
                 const detec = rsltuser?.[2]?.trim() || "unkown user";
 
                 if(detec == "Keluar dari"){
+                    //removeUser(detectedUser)
                     console.log(chalk.red("User leave detected :", detectedUser));
                 } else if (detec == "Bergabung ke"){
+                    //addUser(detectedUser)
                     console.log(chalk.green("User Join detected :", detectedUser));
                 }else {
                     console.log("Unknown action detected:", rsltuser[1],rsltuser[2])
@@ -152,6 +181,7 @@ client.on("messageCreate", async (message) => {
     if(message.content == "🛑 **Server has stopped**") {
         if(message.channel.id == data.dcClID){
         console.log("stopped")
+        //listUsers()
         }
     }
     if (message.content == "!set") {
