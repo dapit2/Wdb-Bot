@@ -9,7 +9,7 @@ import 'dotenv/config'
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
 
 const usePairingCode = false; // Set to false if you want to use QR code
-const uidwa = ""; // your whatsapp number to use command bot
+const uidwa = "5"; // your whatsapp number to use command bot
 const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
 
@@ -41,7 +41,7 @@ async function startbot() {
     sock = makeWASocket({
         syncFullHistory: false,
         auth: state,
-        logger: pino({ level: "silent" }),
+        logger: pino({ level: "info" }),
     })
     
     //jika menggunakan pairing code
@@ -89,7 +89,7 @@ sock.ev.on("messages.upsert", async (m) => {
         if(msg.key.remoteJid == data.wagi) {
         if(!msg.key.fromMe && handlemsg) {
             if(channel?.isTextBased()) {
-                (channel as TextChannel).send(`${name}: ${handlemsg}`);
+                (channel as TextChannel).send(`${name} » ${handlemsg}`);
             }
         }
     }
@@ -104,31 +104,57 @@ sock.ev.on("messages.upsert", async (m) => {
             data.wagi = msg.key.remoteJid;
             fs.writeFileSync('id.json', JSON.stringify(data, null, 4));
             sock.sendMessage(sender, { text: "GroupID set to: " +  data.wagi });
-        }}})
+        }}
+  })
 }
 
 client.on("messageCreate", async (message) => {
     console.log(`Received message Form Discord: ${message.content}`);
-    if (message.author.id === client.user?.id) return;
-    if (message.channel.id === data.dcClID) {
+    if (message.author.id == client.user?.id) return;
+    if (message.channel.id == data.dcClID) {
         console.log("Message received discord!");
         
         // Handle messages with embeds
         let messageText = message.content;
         if (message.embeds.length > 0) {
             const embed = message.embeds[0];
-            const author = embed?.author?.name ? `${embed.author.name}\n` : '';
+            const author = embed?.author?.name ? `${embed.author.name}\n` : "";
             const title = embed?.title || "";
             const desc = embed?.description || "";
             const fields = embed?.fields?.map(f => `${f.name}: ${f.value}`).join('\n') || "";
             const footer = embed?.footer?.text || "";
             
+            //combine all parts
             messageText = `${author}${title}\n${desc}\n${fields}\n${footer}`.trim();
+            //Detect user join/leave from embed author name
+            const rsltuser = author.match(/^\s*(.+?)\s+(keluar dari|Bergabung ke)\b/i);
+
+            if (rsltuser) {
+                // User join/leave username
+                const detectedUser = rsltuser?.[1]?.trim() || "Unknown User";
+                // Action type detection
+                const detec = rsltuser?.[2]?.trim() || "unkown user";
+
+                if(detec == "Keluar dari"){
+                    console.log(chalk.red("User leave detected :", detectedUser));
+                } else if (detec == "Bergabung ke"){
+                    console.log(chalk.green("User Join detected :", detectedUser));
+                }else {
+                    console.log("Unknown action detected:", rsltuser[1],rsltuser[2])
+                }
+                console.log(chalk.blue("logger :", rsltuser[1],rsltuser[2]))
+            }
+
         }
         const userInfo = `${message.author.username} `;
         sock.sendMessage(data.wagi, { text: userInfo + messageText });
     }
-    if (message.content === "!set") {
+    if(message.content == "🛑 **Server has stopped**") {
+        if(message.channel.id == data.dcClID){
+        console.log("stopped")
+        }
+    }
+    if (message.content == "!set") {
         const channelId = message.channel.id;
         if (!message.guild) {
             message.channel.send("This command can only be used in a server.");
@@ -140,7 +166,7 @@ client.on("messageCreate", async (message) => {
             return;
         }
         const hasAllowedRole = member.roles.cache.some(role => allowedRoleIds.includes(role.id));
-        const isAllowedUser = uiddc === message.author.id; // Assuming `uiddc` is the allowed user ID
+        const isAllowedUser = uiddc == message.author.id; // Assuming `uiddc` is the allowed user ID
         if (!isAllowedUser && !hasAllowedRole) {
             message.channel.send("You do not have permission to use this command.");
             return;
