@@ -13,7 +13,7 @@ const usePairingCode = false; // Set to false if you want to use QR code
 const uidwa = ""; // your whatsapp number to use command bot
 const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
-const list: { users: string[] } = { users: [] };
+const list: { users: string[] } = { users: [] }; //store temporary player username to list object 
 
 async function question(promt: string) {
     process.stdout.write(promt)
@@ -33,9 +33,11 @@ let sock: ReturnType<typeof makeWASocket>;
 function addUser(username: any) {
   if (!list.users.includes(username)) {
     list.users.push(username);
-    console.log(`✅ Added user: ${username}`);
+    //for debug
+    //console.log(`✅ Added user: ${username}`);
   } else {
-    console.log(`⚠️ User "${username}" already exists.`);
+    //console.log(`⚠️ User "${username}" already exists.`);
+    return;
   }
 }
 
@@ -44,9 +46,11 @@ function removeUser(username: any) {
   const index = list.users.indexOf(username);
   if (index !== -1) {
     list.users.splice(index, 1);
-    console.log(`❌ Removed user: ${username}`);
+    //for debug
+    //console.log(`❌ Removed user: ${username}`);
   } else {
-    console.log(`⚠️ User "${username}" not found.`);
+    //console.log(`⚠️ User "${username}" not found.`);
+    return;
   }
 }
 
@@ -54,12 +58,6 @@ function removeUser(username: any) {
 function clearUsers() {
   list.users = [];
   console.log("🧹 All users removed.");
-}
-
-// Read all users
-function listUsers() {
-  console.log("📜 Current users:", data.users);
-  return list.users;
 }
 
 async function startbot() {
@@ -164,23 +162,25 @@ client.on("messageCreate", async (message) => {
 
                 if(detec == "Keluar dari"){
                     removeUser(detectedUser)
-                    console.log(chalk.red("User leave detected :", detectedUser));
+                    //for debug
+                    //console.log(chalk.red("User leave detected :", detectedUser));
                 } else if (detec == "Bergabung ke"){
                     addUser(detectedUser)
-                    console.log(chalk.green("User Join detected :", detectedUser));
+                    //console.log(chalk.green("User Join detected :", detectedUser));
                 }else {
-                    console.log("Unknown action detected:", rsltuser[1],rsltuser[2])
+                    //console.log("Unknown action detected:", rsltuser[1],rsltuser[2])
+                    return;
                 }
-                console.log(chalk.blue("logger :", rsltuser[1],rsltuser[2]))
+                //console.log(chalk.blue("logger :", rsltuser[1],rsltuser[2]))
             }
 
         }
         const userInfo = `${message.author.username} `;
-        sock.sendMessage(data.wagi, { text: userInfo + messageText + listUsers()});
+        sock.sendMessage(data.wagi, { text: `${userInfo}${messageText}\n==========\n${list.users}`});
     }
+
     if(message.content == "🛑 **Server has stopped**") {
         if(message.channel.id == data.dcClID){
-        console.log("stopped")
         clearUsers()
         }
     }
