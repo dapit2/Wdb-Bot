@@ -6,7 +6,6 @@ import readline from "readline";
 import pino from "pino";
 import fs from "fs";
 import 'dotenv/config'
-import { BlockList } from "net";
 
 const client = new Client({intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent,]});
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
