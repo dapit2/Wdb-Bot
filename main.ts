@@ -6,6 +6,7 @@ import readline from "readline";
 import pino from "pino";
 import fs from "fs";
 import 'dotenv/config'
+import { BlockList } from "net";
 
 const client = new Client({intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent,]});
 const data = JSON.parse(fs.readFileSync('id.json', 'utf8'));
@@ -13,7 +14,7 @@ const usePairingCode = false; // Set to false if you want to use QR code
 const uidwa = ""; // your whatsapp number to use command bot
 const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
-const list = {users: []};
+const list: { users: string[] };
 
 async function question(promt: string) {
     process.stdout.write(promt)
@@ -30,8 +31,8 @@ async function question(promt: string) {
 let sock: ReturnType<typeof makeWASocket>;
 
 // Add a new user
-function addUser(username) {
-  if (!data.users.includes(username)) {
+function addUser(username: any) {
+  if (!list.users.includes(username)) {
     list.users.push(username);
     console.log(`✅ Added user: ${username}`);
   } else {
@@ -40,8 +41,8 @@ function addUser(username) {
 }
 
 // Remove a specific user
-function removeUser(username) {
-  const index = data.users.indexOf(username);
+function removeUser(username: any) {
+  const index = list.users.indexOf(username);
   if (index !== -1) {
     list.users.splice(index, 1);
     console.log(`❌ Removed user: ${username}`);
@@ -136,7 +137,7 @@ sock.ev.on("messages.upsert", async (m) => {
 }
 
 client.on("messageCreate", async (message) => {
-    console.log(`Received message Form Discord: ${message.content}`);
+    console.log(chalk.blueBright("Received message Form Discord:", message.content));
     if (message.author.id == client.user?.id) return;
     if (message.channel.id == data.dcClID) {
         console.log("Message received discord!");
@@ -163,10 +164,10 @@ client.on("messageCreate", async (message) => {
                 const detec = rsltuser?.[2]?.trim() || "unkown user";
 
                 if(detec == "Keluar dari"){
-                    //removeUser(detectedUser)
+                    removeUser(detectedUser)
                     console.log(chalk.red("User leave detected :", detectedUser));
                 } else if (detec == "Bergabung ke"){
-                    //addUser(detectedUser)
+                    addUser(detectedUser)
                     console.log(chalk.green("User Join detected :", detectedUser));
                 }else {
                     console.log("Unknown action detected:", rsltuser[1],rsltuser[2])
@@ -176,12 +177,12 @@ client.on("messageCreate", async (message) => {
 
         }
         const userInfo = `${message.author.username} `;
-        sock.sendMessage(data.wagi, { text: userInfo + messageText });
+        sock.sendMessage(data.wagi, { text: userInfo + messageText + listUsers()});
     }
     if(message.content == "🛑 **Server has stopped**") {
         if(message.channel.id == data.dcClID){
         console.log("stopped")
-        //listUsers()
+        clearUsers()
         }
     }
     if (message.content == "!set") {
@@ -214,7 +215,7 @@ client.on("messageCreate", async (message) => {
 
 //menampilkan ketika bot sudah siap
 client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
 //error discord bot
