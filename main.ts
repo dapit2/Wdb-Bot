@@ -13,7 +13,7 @@ const usePairingCode = false; // Set to false if you want to use QR code
 const uidwa = ""; // your whatsapp number to use command bot
 const uiddc = ""; // your discord user id to use command bot
 const allowedRoleIds = ["", ""]; // Add role IDs if needed
-const list: { users: string[] };
+const list: { users: string[] } = { users: [] };
 
 async function question(promt: string) {
     process.stdout.write(promt)
